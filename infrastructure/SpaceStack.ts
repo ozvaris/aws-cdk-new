@@ -6,13 +6,14 @@ import {
   Runtime,
 } from "aws-cdk-lib/aws-lambda";
 import { join } from "path";
-import {  LambdaIntegration, RestApi} from "aws-cdk-lib/aws-apigateway";
+import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { GenericTable } from "./GenericTable";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 export class SpaceStack extends Stack {
-  private api = new RestApi(this, 'SpaceApi');
+  private api = new RestApi(this, "SpaceApi");
   private spacesTable = new GenericTable("SpacesTable", "spaceId", this);
-  
+
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
@@ -21,11 +22,14 @@ export class SpaceStack extends Stack {
       code: Code.fromAsset(join(__dirname, "..", "services", "hello")),
       handler: "hello.main",
     });
-    const helloLambdaIntegration = new LambdaIntegration(helloLambda)
-    const helloLamdaResource = this.api.root.addResource('hello');
-    helloLamdaResource.addMethod('GET', helloLambdaIntegration);
 
+    const helloLambdaNodeJs = new NodejsFunction(this, "helloLambdaNodeJs", {
+      entry: join(__dirname, "..", "services", "node-lambda", "hello.ts"),
+      handler: "handler",
+    });
 
-
+    const helloLambdaIntegration = new LambdaIntegration(helloLambda);
+    const helloLamdaResource = this.api.root.addResource("hello");
+    helloLamdaResource.addMethod("GET", helloLambdaIntegration);
   }
 }
