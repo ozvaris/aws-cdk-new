@@ -9,6 +9,7 @@ import { join } from "path";
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { GenericTable } from "./GenericTable";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export class SpaceStack extends Stack {
   private api = new RestApi(this, "SpaceApi");
@@ -28,8 +29,30 @@ export class SpaceStack extends Stack {
       handler: "handler",
     });
 
+    const s3ListPolicy = new PolicyStatement();
+    s3ListPolicy.addActions('s3:ListAllMyBuckets');
+    s3ListPolicy.addResources('*');
+
+    const helloLambdaSdk = new NodejsFunction(this, "helloLambdaSdk", {
+      entry: join(__dirname, "..", "services", "sdk-lambda", "hello.ts"),
+      handler: "handler",
+    });
+
+    helloLambdaSdk.addToRolePolicy(s3ListPolicy);
+
     const helloLambdaIntegration = new LambdaIntegration(helloLambda);
-    const helloLamdaResource = this.api.root.addResource("hello");
+    const helloLamdaResource = this.api.root.addResource("helloLambda");
     helloLamdaResource.addMethod("GET", helloLambdaIntegration);
+
+    const helloLambdaNodeIntegration = new LambdaIntegration(helloLambdaNodeJs);
+    const helloLamdaNodeResource = this.api.root.addResource("helloLambdaNodeJs");
+    helloLamdaNodeResource.addMethod("GET", helloLambdaNodeIntegration);
+
+    const helloLambdaSdkIntegration = new LambdaIntegration(helloLambdaSdk);
+    const helloLamdaSdkResource = this.api.root.addResource("helloLambdaSdk");
+    helloLamdaSdkResource.addMethod("GET", helloLambdaSdkIntegration);
+
+
+    
   }
 }
