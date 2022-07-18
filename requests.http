@@ -1,2 +1,10 @@
-@endpoint = https://q6xtd3g0u6.execute-api.eu-west-1.amazonaws.com/prod
-GET {{endpoint}}/hello/
+@endpoint = https://ifocdf1oi2.execute-api.eu-west-1.amazonaws.com/prod/
+GET {{endpoint}}/helloLambda/
+###
+
+GET {{endpoint}}/helloLambdaNodeJs/
+###
+
+
+GET {{endpoint}}/helloLambdaSdk/
+###
