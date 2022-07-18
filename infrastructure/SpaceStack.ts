@@ -21,6 +21,13 @@ export class SpaceStack extends Stack {
       code: Code.fromAsset(join(__dirname, "..", "services", "hello")),
       handler: "hello.main",
     });
+
+    const helloLambdaWebpack = new LambdaFunction(this, "helloLambdaWebpack", {
+      runtime: Runtime.NODEJS_14_X,
+      code: Code.fromAsset(join(__dirname, "..", "build", "nodeHelloLambda")),
+      handler: "nodeHelloLambda.handler",
+    });
+
     const helloLambdaIntegration = new LambdaIntegration(helloLambda)
     const helloLamdaResource = this.api.root.addResource('hello');
     helloLamdaResource.addMethod('GET', helloLambdaIntegration);
